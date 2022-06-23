@@ -19,17 +19,17 @@ last_day_of_month = Date.new(year.to_i, month.to_i, -1)
 6.times{ print "\s" }
 puts "#{month}月\s#{year}年"
 puts "日 月 火 水 木 金 土"
-(first_day_of_month.wday * 3).times{ print "\s" } # 初日の曜日位置調整
+print "\s" * (first_day_of_month.wday * 3) # 初日の曜日位置調整
 (first_day_of_month..last_day_of_month).each do |day|
   # 今日の日付をハイライト
   if day == today
     print "\e[7m"
-    print day.strftime(format = '%e')
+    print day.strftime('%e')
     print "\e[0m"
   else
-    print day.strftime(format = '%e')
+    print day.day.to_s.rjust(2) # rjustメソッドで調整
   end
   print "\s"
-  puts ("\n") if day.saturday? # 土曜で改行を入れる
+  puts if day.saturday?
 end
-puts ("\n\n")
+puts "\n" * 2

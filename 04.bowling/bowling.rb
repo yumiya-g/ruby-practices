@@ -23,11 +23,9 @@ frame_10th_processing = frames[9..11].flatten
 frame_10th = frame_10th_processing.reject(&:zero?)
 
 frame_1st_to_9th = frames[0..8]
-p all_frames = [*frame_1st_to_9th << frame_10th]
+all_frames = [*frame_1st_to_9th << frame_10th]
 
-total_point = 0
-
-all_frames.each.with_index(1) do |frame, frame_nth|
+total_point = all_frames.each.with_index(1).sum do |frame, frame_nth|
   strike = frame.first == 10
   spare = !strike && frame.sum == 10
   next_frame = all_frames[frame_nth]
@@ -35,23 +33,21 @@ all_frames.each.with_index(1) do |frame, frame_nth|
 
   if strike
     if frame_nth == 10
-      total_point += frame.sum
+      frame.sum
     else
       next_frame_strike = next_frame[0] == 10
-      total_point += if next_frame_strike
-                       if frame_nth < 9
-                         10 + next_frame[0] + after_next_frame[0]
-                       elsif frame_nth == 9
-                         10 + next_frame[0..1].sum
-                       end
-                     else
-                       10 + next_frame[0..1].sum
-                     end
+      if next_frame_strike && frame_nth < 9
+        10 + next_frame[0] + after_next_frame[0]
+      elsif next_frame_strike && frame_nth == 9
+        10 + next_frame[0..1].sum
+      else
+        10 + next_frame[0..1].sum
+      end
     end
   elsif spare
-    total_point += 10 + next_frame[0]
+    10 + next_frame[0]
   else
-    total_point += frame.sum
+    frame.sum
   end
 end
 puts total_point

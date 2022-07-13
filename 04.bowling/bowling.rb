@@ -38,8 +38,6 @@ total_point = all_frames.each.with_index(1).sum do |frame, frame_nth|
       next_frame_strike = next_frame[0] == 10
       if next_frame_strike && frame_nth < 9
         10 + next_frame[0] + after_next_frame[0]
-      elsif next_frame_strike && frame_nth == 9
-        10 + next_frame[0..1].sum
       else
         10 + next_frame[0..1].sum
       end

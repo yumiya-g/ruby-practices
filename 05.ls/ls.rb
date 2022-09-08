@@ -1,43 +1,47 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-FILES_ARR = Dir.glob('*')
+MAX_COLUMNS = 3
 
-max_columns = 3
+all_files = Dir.glob('*', base: 'test_files')
 
-def calc_rows(max_columns)
-  counted_all_files = FILES_ARR.size
+def main(all_files)
+  counted_rows = calc_rows(all_files)
 
-  if (counted_all_files % max_columns).zero?
-    counted_all_files / max_columns
-  else
-    counted_all_files / max_columns + 1
-  end
+  first_row = (0...counted_rows).map { |i| all_files[i] }
+
+  after_next_rows = create_after_second_rows(first_row, counted_rows, all_files)
+
+  file_names_list = swap_row_to_column(first_row, after_next_rows)
+
+  output_file_name(file_names_list, all_files)
 end
 
-def after_second_rows(first_row_array, counted_rows)
-  array_after_second_row = []
-  remaining_arrays = FILES_ARR - first_row_array
-
-  remaining_arrays.each_slice(counted_rows) { |array| array_after_second_row << array }
-  array_after_second_row
+def calc_rows(all_files)
+  num_of_files = all_files.size
+  (num_of_files.to_f / MAX_COLUMNS).ceil
 end
 
-def swap_row_to_column(first_row_array, after_next_rows_array)
-  first_row_array.zip(*after_next_rows_array) do |array|
-    count_files_name = FILES_ARR.map(&:length)
+def create_after_second_rows(first_row, counted_rows, all_files)
+  after_second_row = []
+  remaining_files = all_files - first_row
 
-    array.each.with_index(1) do |file_name, idx|
-      print "#{file_name.ljust(count_files_name.max)}\s" unless file_name.nil?
-      print "\n" if idx == array.size
+  remaining_files.each_slice(counted_rows) { |array| after_second_row << array }
+  after_second_row
+end
+
+def swap_row_to_column(first_row, after_next_rows)
+  first_row.zip(*after_next_rows)
+end
+
+def output_file_name(file_names_list, all_files)
+  max_filename_length = all_files.map(&:length).max
+  file_names_list.each do |file_names|
+    file_names.each do |file_name|
+      print "#{file_name.ljust(max_filename_length)}\s" unless file_name.nil?
     end
+    print "\n"
   end
 end
 
-counted_rows = calc_rows(max_columns)
-
-first_row_array = (0...counted_rows).map { |i| FILES_ARR[i] }
-
-after_next_rows_array = after_second_rows(first_row_array, counted_rows)
-
-swap_row_to_column(first_row_array, after_next_rows_array)
+main(all_files)

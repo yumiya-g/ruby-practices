@@ -1,10 +1,18 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'optparse'
+
 MAX_COLUMNS = 3
 
 def main
-  all_files = formatted_file_names(fetch_file_names)
+  option = options?
+
+  directory_name
+
+  files = fetch_files(option, directory_name)
+
+  all_files = removed_directory_name(files)
 
   num_of_rows = calc_rows(all_files)
 
@@ -19,21 +27,39 @@ def main
   output_file_name(file_names, max_filename_length)
 end
 
-def fetch_file_names
-  if ARGV.empty?
-    Dir.glob('*')
-  else
-    other_directory_files = []
-    ARGV.each do |str|
-      other_directory_files = Dir.glob("#{str}/*")
-    end
-    other_directory_files
-  end
+def options?
+  opt = OptionParser.new
+  params = {}
+  opt.on('-a') { |v| v }
+  opt.parse(ARGV, into: params)
+  params.empty?
 end
 
-def formatted_file_names(fetch_file_names)
-  fetch_file_names.map do |file_name_str|
-    file_name_str.gsub(%r{.*/}, '')
+def directory_name
+  opt = OptionParser.new
+  opt.on('-a') { |v| v }
+  opt.parse!(ARGV)
+end
+
+def root_directory_files(option)
+  option ? Dir.glob('*') : Dir.glob('*', File::FNM_DOTMATCH)
+end
+
+def other_directory_files(option)
+  files = []
+  directory_name.each do |str|
+    files = option ? Dir.glob("#{str}/*") : Dir.glob("#{str}/*", File::FNM_DOTMATCH)
+  end
+  files
+end
+
+def fetch_files(option, directory_name)
+  directory_name.empty? ? root_directory_files(option) : other_directory_files(option)
+end
+
+def removed_directory_name(files)
+  files.map do |file|
+    file.gsub(%r{.*/}, '')
   end
 end
 

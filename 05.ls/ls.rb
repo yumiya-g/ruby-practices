@@ -6,13 +6,11 @@ require 'optparse'
 MAX_COLUMNS = 3
 
 def main
-  option = options?
+  option_exists = has_options?
 
-  directory_name
+  filenames_with_path = fetch_files(option_exists, directory_name)
 
-  files = fetch_files(option, directory_name)
-
-  all_files = removed_directory_name(files)
+  all_files = removed_path(filenames_with_path)
 
   num_of_rows = calc_rows(all_files)
 
@@ -27,7 +25,7 @@ def main
   output_file_name(file_names, max_filename_length)
 end
 
-def options?
+def has_options?
   opt = OptionParser.new
   params = {}
   opt.on('-a') { |v| v }
@@ -38,27 +36,27 @@ end
 def directory_name
   opt = OptionParser.new
   opt.on('-a') { |v| v }
-  opt.parse!(ARGV)
+  opt.parse(ARGV)
 end
 
-def root_directory_files(option)
-  option ? Dir.glob('*') : Dir.glob('*', File::FNM_DOTMATCH)
+def current_directory_files(option_exists)
+  option_exists ? Dir.glob('*') : Dir.glob('*', File::FNM_DOTMATCH)
 end
 
-def other_directory_files(option)
+def other_directory_files(option_exists)
   files = []
   directory_name.each do |str|
-    files = option ? Dir.glob("#{str}/*") : Dir.glob("#{str}/*", File::FNM_DOTMATCH)
+    files = option_exists ? Dir.glob("#{str}/*") : Dir.glob("#{str}/*", File::FNM_DOTMATCH)
   end
   files
 end
 
-def fetch_files(option, directory_name)
-  directory_name.empty? ? root_directory_files(option) : other_directory_files(option)
+def fetch_files(option_exists, directory_name)
+  directory_name.empty? ? current_directory_files(option_exists) : other_directory_files(option_exists)
 end
 
-def removed_directory_name(files)
-  files.map do |file|
+def removed_path(filenames_with_path)
+  filenames_with_path.map do |file|
     file.gsub(%r{.*/}, '')
   end
 end

@@ -6,9 +6,7 @@ require 'optparse'
 MAX_COLUMNS = 3
 
 def main
-  option_exists = has_options?
-
-  filenames_with_path = fetch_files(option_exists, directory_name)
+  filenames_with_path = fetch_files(convert_commandline_args)
 
   all_files = removed_path(filenames_with_path)
 
@@ -25,34 +23,33 @@ def main
   output_file_name(file_names, max_filename_length)
 end
 
-def has_options?
+def convert_commandline_args
   opt = OptionParser.new
   params = {}
   opt.on('-a') { |v| v }
-  opt.parse(ARGV, into: params)
-  params.empty?
+  directory_name = opt.parse(ARGV, into: params)
+  options = params.keys
+  { directory_name: directory_name, options: options }
 end
 
-def directory_name
-  opt = OptionParser.new
-  opt.on('-a') { |v| v }
-  opt.parse(ARGV)
+def show_current_directory_files(convert_commandline_args)
+  convert_commandline_args[:options].empty? ? Dir.glob('*') : Dir.glob('*', File::FNM_DOTMATCH)
 end
 
-def current_directory_files(option_exists)
-  option_exists ? Dir.glob('*') : Dir.glob('*', File::FNM_DOTMATCH)
-end
-
-def other_directory_files(option_exists)
+def show_other_directory_files(convert_commandline_args)
   files = []
-  directory_name.each do |str|
-    files = option_exists ? Dir.glob("#{str}/*") : Dir.glob("#{str}/*", File::FNM_DOTMATCH)
+  convert_commandline_args[:directory_name].each do |str|
+    files = convert_commandline_args[:options].empty? ? Dir.glob("#{str}/*") : Dir.glob("#{str}/*", File::FNM_DOTMATCH)
   end
   files
 end
 
-def fetch_files(option_exists, directory_name)
-  directory_name.empty? ? current_directory_files(option_exists) : other_directory_files(option_exists)
+def fetch_files(convert_commandline_args)
+  if convert_commandline_args[:directory_name].empty?
+    show_current_directory_files(convert_commandline_args)
+  else
+    show_other_directory_files(convert_commandline_args)
+  end
 end
 
 def removed_path(filenames_with_path)

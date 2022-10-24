@@ -6,7 +6,7 @@ require 'optparse'
 MAX_COLUMNS = 3
 
 def main
-  filenames_with_path = fetch_files(convert_commandline_args)
+  filenames_with_path = fetch_files(parse_argv)
 
   all_files = removed_path(filenames_with_path)
 
@@ -23,7 +23,7 @@ def main
   output_file_name(file_names, max_filename_length)
 end
 
-def convert_commandline_args
+def parse_argv
   opt = OptionParser.new
   params = {}
   opt.on('-a') { |v| v }
@@ -32,23 +32,23 @@ def convert_commandline_args
   { directory_name: directory_name, options: options }
 end
 
-def show_current_directory_files(convert_commandline_args)
-  convert_commandline_args[:options].empty? ? Dir.glob('*') : Dir.glob('*', File::FNM_DOTMATCH)
+def show_current_directory_files(parse_argv)
+  parse_argv[:options].empty? ? Dir.glob('*') : Dir.glob('*', File::FNM_DOTMATCH)
 end
 
-def show_other_directory_files(convert_commandline_args)
+def show_other_directory_files(parse_argv)
   files = []
-  convert_commandline_args[:directory_name].each do |str|
-    files = convert_commandline_args[:options].empty? ? Dir.glob("#{str}/*") : Dir.glob("#{str}/*", File::FNM_DOTMATCH)
+  parse_argv[:directory_name].each do |str|
+    files = parse_argv[:options].empty? ? Dir.glob("#{str}/*") : Dir.glob("#{str}/*", File::FNM_DOTMATCH)
   end
   files
 end
 
-def fetch_files(convert_commandline_args)
-  if convert_commandline_args[:directory_name].empty?
-    show_current_directory_files(convert_commandline_args)
+def fetch_files(argv)
+  if argv[:directory_name].empty?
+    show_current_directory_files(argv)
   else
-    show_other_directory_files(convert_commandline_args)
+    show_other_directory_files(argv)
   end
 end
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'debug'
 require 'optparse'
 
 MAX_COLUMNS = 3
@@ -8,7 +9,7 @@ MAX_COLUMNS = 3
 def main
   filenames_with_path = fetch_files(parse_argv)
 
-  all_files = removed_path(filenames_with_path)
+  all_files = remove_path(filenames_with_path)
 
   num_of_rows = calc_rows(all_files)
 
@@ -52,9 +53,9 @@ def fetch_files(argv)
   end
 end
 
-def removed_path(filenames_with_path)
+def remove_path(filenames_with_path)
   filenames_with_path.map do |file|
-    file.gsub(%r{.*/}, '')
+    File.basename(file)
   end
 end
 

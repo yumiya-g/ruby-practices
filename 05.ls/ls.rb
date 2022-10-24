@@ -33,23 +33,12 @@ def parse_argv
   { directory_name: directory_name, options: options }
 end
 
-def show_current_directory_files(parse_argv)
-  parse_argv[:options].empty? ? Dir.glob('*') : Dir.glob('*', File::FNM_DOTMATCH)
-end
-
-def show_other_directory_files(parse_argv)
-  files = []
-  parse_argv[:directory_name].each do |str|
-    files = parse_argv[:options].empty? ? Dir.glob("#{str}/*") : Dir.glob("#{str}/*", File::FNM_DOTMATCH)
-  end
-  files
-end
-
-def fetch_files(argv)
-  if argv[:directory_name].empty?
-    show_current_directory_files(argv)
+def fetch_files(parse_argv)
+  dir_name = parse_argv[:directory_name].empty? ? '*' : "#{parse_argv[:directory_name].first}/*"
+  if parse_argv[:options].empty?
+    Dir.glob(dir_name)
   else
-    show_other_directory_files(argv)
+    Dir.glob(dir_name, File::FNM_DOTMATCH)
   end
 end
 

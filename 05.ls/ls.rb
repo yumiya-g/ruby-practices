@@ -33,9 +33,9 @@ def parse_argv
   { directory_name: directory_name, options: options }
 end
 
-def fetch_files(parse_argv)
-  dir_name = parse_argv[:directory_name].empty? ? '*' : "#{parse_argv[:directory_name].first}/*"
-  if parse_argv[:options].empty?
+def fetch_files(argv)
+  dir_name = argv[:directory_name].empty? ? '*' : "#{argv[:directory_name].first}/*"
+  if argv[:options].empty?
     Dir.glob(dir_name)
   else
     Dir.glob(dir_name, File::FNM_DOTMATCH)

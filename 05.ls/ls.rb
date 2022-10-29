@@ -28,6 +28,7 @@ def parse_argv
   opt = OptionParser.new
   params = {}
   opt.on('-a') { |v| v }
+  opt.on('-r') { |v| v }
   directory_name = opt.parse(ARGV, into: params)
   options = params.keys
   { directory_name: directory_name, options: options }
@@ -35,11 +36,14 @@ end
 
 def fetch_files(argv)
   dir_name = argv[:directory_name].empty? ? '*' : "#{argv[:directory_name].first}/*"
-  if argv[:options].empty?
-    Dir.glob(dir_name)
-  else
-    Dir.glob(dir_name, File::FNM_DOTMATCH)
-  end
+
+  files = if argv[:options] == [:a]
+            Dir.glob(dir_name, File::FNM_DOTMATCH)
+          else
+            Dir.glob(dir_name)
+          end
+
+  argv[:options] == [:r] ? files.reverse : files
 end
 
 def remove_path(filenames_with_path)

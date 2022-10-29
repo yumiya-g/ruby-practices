@@ -1,18 +1,15 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'debug'
+require 'optparse'
+
 MAX_COLUMNS = 3
 
 def main
-  all_files = if ARGV.empty?
-                Dir.glob('*')
-              else
-                other_directory_files = []
-                ARGV.each do |str|
-                  other_directory_files = Dir.glob("#{str}/*")
-                end
-                other_directory_files
-              end
+  filenames_with_path = fetch_files(parse_argv)
+
+  all_files = remove_path(filenames_with_path)
 
   num_of_rows = calc_rows(all_files)
 
@@ -22,9 +19,33 @@ def main
 
   file_names = swap_row_to_column(first_row, after_next_rows)
 
-  max_filename_length = count_max_filename(file_names)
+  max_filename_length = count_max_filename(all_files)
 
   output_file_name(file_names, max_filename_length)
+end
+
+def parse_argv
+  opt = OptionParser.new
+  params = {}
+  opt.on('-a') { |v| v }
+  directory_name = opt.parse(ARGV, into: params)
+  options = params.keys
+  { directory_name: directory_name, options: options }
+end
+
+def fetch_files(argv)
+  dir_name = argv[:directory_name].empty? ? '*' : "#{argv[:directory_name].first}/*"
+  if argv[:options].empty?
+    Dir.glob(dir_name)
+  else
+    Dir.glob(dir_name, File::FNM_DOTMATCH)
+  end
+end
+
+def remove_path(filenames_with_path)
+  filenames_with_path.map do |file|
+    File.basename(file)
+  end
 end
 
 def calc_rows(all_files)
@@ -44,17 +65,14 @@ def swap_row_to_column(first_row, after_next_rows)
   first_row.zip(*after_next_rows)
 end
 
-def count_max_filename(file_names)
-  formatted_file_names = file_names.flatten.compact.map do |name_str|
-    name_str.gsub(%r{.*/}, '')
-  end
-  formatted_file_names.map(&:size).max
+def count_max_filename(all_files)
+  all_files.map(&:size).max
 end
 
 def output_file_name(file_names, max_filename_length)
   file_names.each do |file_name|
     file_name.each do |name|
-      print "#{name.gsub(%r{.*/}, '').ljust(max_filename_length)}\s" unless name.nil?
+      print "#{name.ljust(max_filename_length)}\s" unless name.nil?
     end
     puts
   end

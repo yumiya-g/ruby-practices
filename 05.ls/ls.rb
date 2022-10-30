@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'debug'
 require 'optparse'
 
 MAX_COLUMNS = 3
@@ -42,7 +41,6 @@ def fetch_files(argv)
           else
             Dir.glob(dir_name)
           end
-
   argv[:options] == [:r] ? files.reverse : files
 end
 
@@ -73,10 +71,16 @@ def count_max_filename(all_files)
   all_files.map(&:size).max
 end
 
+def convert_multibyte_filename(name, max_filename_length)
+  file_name_to_bytesize = name.each_char.map { |c| c.bytesize == 1 ? 1 : c.encode('EUC-JP').bytesize }.sum
+  padding_size = max_filename_length - file_name_to_bytesize
+  name + ' ' * padding_size
+end
+
 def output_file_name(file_names, max_filename_length)
   file_names.each do |file_name|
     file_name.each do |name|
-      print "#{name.ljust(max_filename_length)}\s" unless name.nil?
+      print "#{convert_multibyte_filename(name, max_filename_length)}\s" unless name.nil?
     end
     puts
   end

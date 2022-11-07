@@ -72,7 +72,7 @@ def count_max_filename(all_files)
 end
 
 def convert_multibyte_filename(name, max_filename_length)
-  file_name_to_bytesize = name.each_char.map { |c| c.bytesize == 1 ? 1 : c.encode('EUC-JP').bytesize }.sum
+  file_name_to_bytesize = name.each_char.map { |c| c.bytesize == 1 ? 1 : 2 }.sum
   padding_size = max_filename_length - file_name_to_bytesize
   name + ' ' * padding_size
 end

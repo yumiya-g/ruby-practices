@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'debug'
 require 'optparse'
 
 MAX_COLUMNS = 3
@@ -28,6 +27,7 @@ def parse_argv
   opt = OptionParser.new
   params = {}
   opt.on('-a') { |v| v }
+  opt.on('-r') { |v| v }
   directory_name = opt.parse(ARGV, into: params)
   options = params.keys
   { directory_name: directory_name, options: options }
@@ -35,11 +35,13 @@ end
 
 def fetch_files(argv)
   dir_name = argv[:directory_name].empty? ? '*' : "#{argv[:directory_name].first}/*"
-  if argv[:options].empty?
-    Dir.glob(dir_name)
-  else
-    Dir.glob(dir_name, File::FNM_DOTMATCH)
-  end
+
+  files = if argv[:options] == [:a]
+            Dir.glob(dir_name, File::FNM_DOTMATCH)
+          else
+            Dir.glob(dir_name)
+          end
+  argv[:options] == [:r] ? files.reverse : files
 end
 
 def remove_path(filenames_with_path)
@@ -69,10 +71,16 @@ def count_max_filename(all_files)
   all_files.map(&:size).max
 end
 
+def convert_multibyte_filename(name, max_filename_length)
+  file_name_to_bytesize = name.each_char.map { |c| c.bytesize == 1 ? 1 : 2 }.sum
+  padding_size = max_filename_length - file_name_to_bytesize
+  name + ' ' * padding_size
+end
+
 def output_file_name(file_names, max_filename_length)
   file_names.each do |file_name|
     file_name.each do |name|
-      print "#{name.ljust(max_filename_length)}\s" unless name.nil?
+      print "#{convert_multibyte_filename(name, max_filename_length)}\s" unless name.nil?
     end
     puts
   end

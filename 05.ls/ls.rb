@@ -2,13 +2,34 @@
 # frozen_string_literal: true
 
 require 'optparse'
+require 'etc'
+require 'time'
 
 MAX_COLUMNS = 3
+
+FILE_TYPE = {
+  'file': '-',
+  'directory': 'd',
+  'link': 'l'
+}.freeze
+
+FILE_PERMISSION = {
+  '0': '---',
+  '1': '--x',
+  '2': '-w-',
+  '3': '-wx',
+  '4': 'r--',
+  '5': 'r-x',
+  '6': 'rw-',
+  '7': 'rwx'
+}.freeze
 
 def main
   filenames_with_path = fetch_files(parse_argv)
 
   all_files = remove_path(filenames_with_path)
+
+  return output_file_info(filenames_with_path) if parse_argv[:options] == [:l]
 
   num_of_rows = calc_rows(all_files)
 
@@ -28,6 +49,7 @@ def parse_argv
   params = {}
   opt.on('-a') { |v| v }
   opt.on('-r') { |v| v }
+  opt.on('-l') { |v| v }
   directory_name = opt.parse(ARGV, into: params)
   options = params.keys
   { directory_name: directory_name, options: options }
@@ -48,6 +70,70 @@ def remove_path(filenames_with_path)
   filenames_with_path.map do |file|
     File.basename(file)
   end
+end
+
+def output_file_info(files)
+  file_stats = []
+  files.each do |file|
+    file_stats << File::Stat.new(file)
+  end
+
+  digit = count_digit(file_stats)
+  puts "total #{calc_blocksize(file_stats)}"
+  puts generate_file_info_list(file_stats, digit, files)
+end
+
+def calc_blocksize(file_stats)
+  fs_total = file_stats.map(&:blocks)
+  puts fs_total.sum
+end
+
+def count_digit(file_stats)
+  nlink_digit = file_stats.map { |fs| fs.nlink.to_s }.max.size
+  filesize_digit = file_stats.map { |fs| fs.size.to_i }.max.to_s.size
+
+  { nlink: nlink_digit, filesize: filesize_digit }
+end
+
+def generate_file_info_list(file_stats, digit, files)
+  file_stats.map.with_index do |fs, i|
+    list = output_filetype_permission(fs) + output_link(fs, digit)
+    list_add_user_group = list + outout_user_name_group(fs)
+    list_add_bytesize = list_add_user_group + output_bytesize(fs, digit)
+    list_add_timestamp = list_add_bytesize + output_timestamp(fs)
+    list_add_timestamp.join + File.basename(files[i])
+  end
+end
+
+def output_filetype_permission(file_stats)
+  filetype_code = FILE_TYPE[file_stats.ftype.to_sym]
+
+  permission_numbers = file_stats.mode.to_s(8).slice(-3..-1).split('')
+  permission_code = permission_numbers.map do |number|
+    FILE_PERMISSION[number.to_sym]
+  end
+  permission_code.unshift(filetype_code).push("\s\s")
+end
+
+def output_link(file_stats, digit)
+  file_stats.nlink.to_s.rjust(digit[:nlink]).split('')
+end
+
+def outout_user_name_group(file_stats)
+  user_id = file_stats.uid
+  user_name = Etc.getpwuid(user_id).name
+  group_id = file_stats.gid
+  user_group = Etc.getgrgid(group_id).name
+  ["\s#{user_name}\s\s#{user_group}"]
+end
+
+def output_bytesize(file_stats, digit)
+  ["\s\s#{file_stats.size.to_s.rjust(digit[:filesize])}"]
+end
+
+def output_timestamp(file_stats)
+  date = file_stats.mtime
+  ["\s#{date.mon.to_s.rjust(2)}\s#{date.day.to_s.rjust(2)}\s#{date.strftime('%R')}\s"]
 end
 
 def calc_rows(all_files)
@@ -80,7 +166,7 @@ end
 def output_file_name(file_names, max_filename_length)
   file_names.each do |file_name|
     file_name.each do |name|
-      print "#{convert_multibyte_filename(name, max_filename_length)}\s" unless name.nil?
+      print "#{convert_multibyte_filename(name, max_filename_length)}\t" unless name.nil?
     end
     puts
   end

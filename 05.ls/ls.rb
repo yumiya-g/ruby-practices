@@ -5,6 +5,8 @@ require 'optparse'
 require 'etc'
 require 'time'
 
+require 'debug'
+
 MAX_COLUMNS = 3
 
 FILE_TYPE = {
@@ -29,19 +31,21 @@ def main
 
   all_files = remove_path(filenames_with_path)
 
-  return output_file_info(filenames_with_path) if parse_argv[:options] == [:l]
+  if parse_argv[:options] != [:l]
+    num_of_rows = calc_rows(all_files)
 
-  num_of_rows = calc_rows(all_files)
+    first_row = all_files[0...num_of_rows]
 
-  first_row = all_files[0...num_of_rows]
+    after_next_rows = create_after_next_rows(first_row, num_of_rows, all_files)
 
-  after_next_rows = create_after_next_rows(first_row, num_of_rows, all_files)
+    file_names = swap_row_to_column(first_row, after_next_rows)
 
-  file_names = swap_row_to_column(first_row, after_next_rows)
+    max_filename_length = count_max_filename(all_files)
 
-  max_filename_length = count_max_filename(all_files)
-
-  output_file_name(file_names, max_filename_length)
+    output_file_name(file_names, max_filename_length)
+  else
+    output_file_info(filenames_with_path)
+  end
 end
 
 def parse_argv

@@ -44,7 +44,7 @@ def main
 
     output_file_name(file_names, max_filename_length)
   else
-    output_file_info(filenames_with_path)
+    extract_file_info(filenames_with_path)
   end
 end
 
@@ -76,10 +76,9 @@ def remove_path(filenames_with_path)
   end
 end
 
-def output_file_info(files)
-  file_stats = []
-  files.each do |file|
-    file_stats << File::Stat.new(file)
+def extract_file_info(files)
+  file_stats = files.map do |file|
+    File::Stat.new(file)
   end
 
   digit = count_digit(file_stats)
@@ -101,15 +100,15 @@ end
 
 def generate_file_info_list(file_stats, digit, files)
   file_stats.map.with_index do |fs, i|
-    list = output_filetype_permission(fs) + output_link(fs, digit)
-    list_add_user_group = list + outout_user_name_group(fs)
-    list_add_bytesize = list_add_user_group + output_bytesize(fs, digit)
-    list_add_timestamp = list_add_bytesize + output_timestamp(fs)
+    list = extract_filetype_permission(fs) + extract_link(fs, digit)
+    list_add_user_group = list + extract_user_name_group(fs)
+    list_add_bytesize = list_add_user_group + extract_bytesize(fs, digit)
+    list_add_timestamp = list_add_bytesize + extract_timestamp(fs)
     list_add_timestamp.join + File.basename(files[i])
   end
 end
 
-def output_filetype_permission(file_stats)
+def extract_filetype_permission(file_stats)
   filetype_code = FILE_TYPE[file_stats.ftype.to_sym]
 
   permission_numbers = file_stats.mode.to_s(8).slice(-3..-1).split('')
@@ -119,11 +118,11 @@ def output_filetype_permission(file_stats)
   permission_code.unshift(filetype_code).push("\s\s")
 end
 
-def output_link(file_stats, digit)
+def extract_link(file_stats, digit)
   file_stats.nlink.to_s.rjust(digit[:nlink]).split('')
 end
 
-def outout_user_name_group(file_stats)
+def extract_user_name_group(file_stats)
   user_id = file_stats.uid
   user_name = Etc.getpwuid(user_id).name
   group_id = file_stats.gid
@@ -131,11 +130,11 @@ def outout_user_name_group(file_stats)
   ["\s#{user_name}\s\s#{user_group}"]
 end
 
-def output_bytesize(file_stats, digit)
+def extract_bytesize(file_stats, digit)
   ["\s\s#{file_stats.size.to_s.rjust(digit[:filesize])}"]
 end
 
-def output_timestamp(file_stats)
+def extract_timestamp(file_stats)
   date = file_stats.mtime
   ["\s#{date.mon.to_s.rjust(2)}\s#{date.day.to_s.rjust(2)}\s#{date.strftime('%R')}\s"]
 end

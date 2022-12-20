@@ -42,7 +42,7 @@ def main
 
     output_file_name(file_names, max_filename_length)
   else
-    extract_file_info(filenames_with_path)
+    output_file_info(filenames_with_path)
   end
 end
 
@@ -110,7 +110,7 @@ def output_file_name(file_names, max_filename_length)
   end
 end
 
-def extract_file_info(files)
+def output_file_info(files)
   file_stats = files.map do |file|
     File::Stat.new(file)
   end

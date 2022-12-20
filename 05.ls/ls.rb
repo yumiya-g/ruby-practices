@@ -4,6 +4,7 @@
 require 'optparse'
 require 'etc'
 require 'time'
+require 'debug'
 
 MAX_COLUMNS = 3
 
@@ -30,17 +31,7 @@ def main
   all_files = remove_path(filenames_with_path)
 
   if parse_argv[:options] != [:l]
-    num_of_rows = calc_rows(all_files)
-
-    first_row = all_files[0...num_of_rows]
-
-    after_next_rows = create_after_next_rows(first_row, num_of_rows, all_files)
-
-    file_names = swap_row_to_column(first_row, after_next_rows)
-
-    max_filename_length = count_max_filename(all_files)
-
-    output_file_name(file_names, max_filename_length)
+    output_file_name(all_files)
   else
     output_file_info(filenames_with_path)
   end
@@ -74,6 +65,20 @@ def remove_path(filenames_with_path)
   end
 end
 
+def output_file_name(all_files)
+  num_of_rows = calc_rows(all_files)
+
+  first_row = all_files[0...num_of_rows]
+
+  after_next_rows = create_after_next_rows(first_row, num_of_rows, all_files)
+
+  file_names = swap_row_to_column(first_row, after_next_rows)
+
+  max_filename_length = count_max_filename(all_files)
+
+  generate_file_name(file_names, max_filename_length)
+end
+
 def calc_rows(all_files)
   num_of_files = all_files.size
   (num_of_files.to_f / MAX_COLUMNS).ceil
@@ -101,7 +106,7 @@ def convert_multibyte_filename(name, max_filename_length)
   name + ' ' * padding_size
 end
 
-def output_file_name(file_names, max_filename_length)
+def generate_file_name(file_names, max_filename_length)
   file_names.each do |file_name|
     file_name.each do |name|
       print "#{convert_multibyte_filename(name, max_filename_length)}\t" unless name.nil?

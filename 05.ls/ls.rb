@@ -4,7 +4,6 @@
 require 'optparse'
 require 'etc'
 require 'time'
-require 'debug'
 
 MAX_COLUMNS = 3
 
@@ -26,11 +25,11 @@ FILE_PERMISSION = {
 }.freeze
 
 def main
-  filenames_with_path = fetch_files(parse_argv)
-
+  dirname_options = parse_argv
+  filenames_with_path = fetch_files(dirname_options)
   all_files = remove_path(filenames_with_path)
 
-  if parse_argv[:options] != [:l]
+  if dirname_options[:options] != [:l]
     output_file_name(all_files)
   else
     output_file_info(filenames_with_path)
@@ -48,15 +47,15 @@ def parse_argv
   { directory_name: directory_name, options: options }
 end
 
-def fetch_files(argv)
-  dir_name = argv[:directory_name].empty? ? '*' : "#{argv[:directory_name].first}/*"
+def fetch_files(dirname_options)
+  dir_name = dirname_options[:directory_name].empty? ? '*' : "#{dirname_options[:directory_name].first}/*"
 
-  files = if argv[:options] == [:a]
+  files = if dirname_options[:options] == [:a]
             Dir.glob(dir_name, File::FNM_DOTMATCH)
           else
             Dir.glob(dir_name)
           end
-  argv[:options] == [:r] ? files.reverse : files
+  dirname_options[:options] == [:r] ? files.reverse : files
 end
 
 def remove_path(filenames_with_path)
@@ -117,67 +116,66 @@ end
 
 def output_file_info(files)
   file_stats = files.map do |file|
-    File::Stat.new(file)
+    { fs: File::Stat.new(file), filename: file }
   end
 
   digit = count_digit(file_stats)
   puts "total #{calc_blocksize(file_stats)}"
-  puts generate_file_info_list(file_stats, digit, files)
-end
-
-def calc_blocksize(file_stats)
-  fs_total = file_stats.map(&:blocks)
-  puts fs_total.sum
+  puts generate_file_info_list(file_stats, digit)
 end
 
 def count_digit(file_stats)
-  nlink_digit = file_stats.map { |fs| fs.nlink.to_s }.max.size
-  filesize_digit = file_stats.map { |fs| fs.size.to_i }.max.to_s.size
+  nlink_digit = file_stats.map { |file_stat| file_stat[:fs].nlink.to_s }.max.size
+  filesize_digit = file_stats.map { |file_stat| file_stat[:fs].size.to_i }.max.to_s.size
 
   { nlink: nlink_digit, filesize: filesize_digit }
 end
 
-def generate_file_info_list(file_stats, digit, files)
-  file_stats.map.with_index do |file_stat, i|
+def calc_blocksize(file_stats)
+  fs_total = file_stats.map { |file_stat| file_stat[:fs].blocks }
+  fs_total.sum
+end
+
+def generate_file_info_list(file_stats, digit)
+  file_stats.map do |file_stat|
     file_info = extract_filetype_permission(file_stat)
     file_info += extract_link(file_stat, digit)
     file_info += extract_user_name_group(file_stat)
     file_info += extract_bytesize(file_stat, digit)
     file_info += extract_timestamp(file_stat)
-
-    file_info_and_name = { info: file_info.join, filename: File.basename(files[i]) }
-    file_info_and_name[:info] + file_info_and_name[:filename]
+    file_info_and_name = file_info + file_stat[:filename].split
+    file_info_and_name.join
   end
 end
 
-def extract_filetype_permission(file_stats)
-  filetype_code = FILE_TYPE[file_stats.ftype.to_sym]
+def extract_filetype_permission(file_stat)
+  filetype_code = FILE_TYPE[file_stat[:fs].ftype.to_sym]
 
-  permission_numbers = file_stats.mode.to_s(8).slice(-3..-1).split('')
+  permission_numbers = file_stat[:fs].mode.to_s(8).slice(-3..-1).split('')
   permission_code = permission_numbers.map do |number|
     FILE_PERMISSION[number.to_sym]
   end
   permission_code.unshift(filetype_code).push("\s\s")
 end
 
-def extract_link(file_stats, digit)
-  file_stats.nlink.to_s.rjust(digit[:nlink]).split('')
+def extract_link(file_stat, digit)
+  file_stat[:fs].nlink.to_s.rjust(digit[:nlink]).split('')
 end
 
-def extract_user_name_group(file_stats)
-  user_id = file_stats.uid
+def extract_user_name_group(file_stat)
+  user_id = file_stat[:fs].uid
   user_name = Etc.getpwuid(user_id).name
-  group_id = file_stats.gid
+  group_id = file_stat[:fs].gid
   user_group = Etc.getgrgid(group_id).name
   ["\s#{user_name}\s\s#{user_group}"]
 end
 
-def extract_bytesize(file_stats, digit)
-  ["\s\s#{file_stats.size.to_s.rjust(digit[:filesize])}"]
+def extract_bytesize(file_stat, digit)
+  ["\s\s#{file_stat[:fs].size.to_s.rjust(digit[:filesize])}"]
 end
 
-def extract_timestamp(file_stats)
-  date = file_stats.mtime
+def extract_timestamp(file_stat)
+  date = file_stat[:fs].mtime
   ["\s#{date.mon.to_s.rjust(2)}\s#{date.day.to_s.rjust(2)}\s#{date.strftime('%R')}\s"]
 end
 

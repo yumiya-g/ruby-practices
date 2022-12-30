@@ -116,32 +116,32 @@ end
 
 def output_file_info(files)
   file_stats = files.map do |file|
-    { fs: File::Stat.new(file), filename: file }
+    { fs: File::Stat.new(file), filename: File.basename(file) }
   end
 
-  digit = count_digit(file_stats)
+  digits = count_digit(file_stats)
   puts "total #{calc_blocksize(file_stats)}"
-  puts generate_file_info_list(file_stats, digit)
+  puts generate_file_info_list(file_stats, digits)
 end
 
 def count_digit(file_stats)
   nlink_digit = file_stats.map { |file_stat| file_stat[:fs].nlink.to_s }.max.size
   filesize_digit = file_stats.map { |file_stat| file_stat[:fs].size.to_i }.max.to_s.size
-
-  { nlink: nlink_digit, filesize: filesize_digit }
+  user_name_digit = file_stats.map { |file_stat| Etc.getpwuid(file_stat[:fs].uid).name.size }.max
+  user_group_digit = file_stats.map { |file_stat| Etc.getgrgid(file_stat[:fs].gid).name.size }.max
+  { nlink: nlink_digit, filesize: filesize_digit, username: user_name_digit, usergroup: user_group_digit }
 end
 
 def calc_blocksize(file_stats)
-  fs_total = file_stats.map { |file_stat| file_stat[:fs].blocks }
-  fs_total.sum
+  file_stats.sum { |file_stat| file_stat[:fs].blocks }
 end
 
-def generate_file_info_list(file_stats, digit)
+def generate_file_info_list(file_stats, digits)
   file_stats.map do |file_stat|
     file_info = extract_filetype_permission(file_stat)
-    file_info += extract_link(file_stat, digit)
-    file_info += extract_user_name_group(file_stat)
-    file_info += extract_bytesize(file_stat, digit)
+    file_info += extract_link(file_stat, digits)
+    file_info += extract_user_name_group(file_stat, digits)
+    file_info += extract_bytesize(file_stat, digits)
     file_info += extract_timestamp(file_stat)
     file_info_and_name = file_info + file_stat[:filename].split
     file_info_and_name.join
@@ -158,20 +158,20 @@ def extract_filetype_permission(file_stat)
   permission_code.unshift(filetype_code).push("\s\s")
 end
 
-def extract_link(file_stat, digit)
-  file_stat[:fs].nlink.to_s.rjust(digit[:nlink]).split('')
+def extract_link(file_stat, digits)
+  file_stat[:fs].nlink.to_s.rjust(digits[:nlink]).split('')
 end
 
-def extract_user_name_group(file_stat)
+def extract_user_name_group(file_stat, digits)
   user_id = file_stat[:fs].uid
-  user_name = Etc.getpwuid(user_id).name
+  user_name = Etc.getpwuid(user_id).name.ljust(digits[:username])
   group_id = file_stat[:fs].gid
-  user_group = Etc.getgrgid(group_id).name
+  user_group = Etc.getgrgid(group_id).name.ljust(digits[:usergroup])
   ["\s#{user_name}\s\s#{user_group}"]
 end
 
-def extract_bytesize(file_stat, digit)
-  ["\s\s#{file_stat[:fs].size.to_s.rjust(digit[:filesize])}"]
+def extract_bytesize(file_stat, digits)
+  ["\s\s#{file_stat[:fs].size.to_s.rjust(digits[:filesize])}"]
 end
 
 def extract_timestamp(file_stat)

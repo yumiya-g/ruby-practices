@@ -29,33 +29,31 @@ def main
   filenames_with_path = fetch_files(dirname_options)
   all_files = remove_path(filenames_with_path)
 
-  if dirname_options[:options] != [:l]
-    output_file_name(all_files)
-  else
+  if dirname_options[:options].include?(:l)
     output_file_info(filenames_with_path)
+  else
+    output_file_name(all_files)
   end
 end
 
 def parse_argv
   opt = OptionParser.new
-  params = {}
   opt.on('-a') { |v| v }
   opt.on('-r') { |v| v }
   opt.on('-l') { |v| v }
-  directory_name = opt.parse(ARGV, into: params)
-  options = params.keys
+  directory_name = opt.parse(ARGV)
+  options = opt.getopts(ARGV).keys.map(&:to_sym)
   { directory_name: directory_name, options: options }
 end
 
 def fetch_files(dirname_options)
   dir_name = dirname_options[:directory_name].empty? ? '*' : "#{dirname_options[:directory_name].first}/*"
-
-  files = if dirname_options[:options] == [:a]
+  files = if dirname_options[:options].include?(:a)
             Dir.glob(dir_name, File::FNM_DOTMATCH)
           else
             Dir.glob(dir_name)
           end
-  dirname_options[:options] == [:r] ? files.reverse : files
+  dirname_options[:options].include?(:r) ? files.reverse : files
 end
 
 def remove_path(filenames_with_path)
@@ -125,7 +123,7 @@ def output_file_info(files)
 end
 
 def count_digit(file_stats)
-  nlink_digit = file_stats.map { |file_stat| file_stat[:fs].nlink.to_s }.max.size
+  nlink_digit = file_stats.map { |file_stat| file_stat[:fs].nlink }.max.to_s.size
   filesize_digit = file_stats.map { |file_stat| file_stat[:fs].size.to_i }.max.to_s.size
   user_name_digit = file_stats.map { |file_stat| Etc.getpwuid(file_stat[:fs].uid).name.size }.max
   user_group_digit = file_stats.map { |file_stat| Etc.getgrgid(file_stat[:fs].gid).name.size }.max

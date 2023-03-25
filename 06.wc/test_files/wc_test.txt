@@ -1,0 +1,8 @@
+❯ wc ls.rb          
+     181     394    4997 ls.rb
+
+❯ wc wc.rb     
+      54     131    1342 wc.rb
+
+❯ wc wc_test.rb
+       8      21     154 wc_test.rb

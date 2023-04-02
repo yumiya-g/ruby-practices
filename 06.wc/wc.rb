@@ -2,8 +2,11 @@
 # frozen_string_literal: true
 
 require 'optparse'
+require 'debug'
 
 OUTPUT_ORDER = %w[l w c].freeze
+OPTION_KEY_MAP = [%i[l rows], %i[w words], %i[c bytesize]].freeze
+
 NUMBER_OF_LINES = 8
 
 def main
@@ -38,8 +41,7 @@ def output_stdin(stdin, parsed_argv)
     inputs.first.each_value { |input| output_value(input) }
     print "\n"
   else
-    sorted_options = sort_values_by_options(parsed_argv)
-    output_option_values(inputs, sorted_options)
+    output_options_available(inputs, parsed_argv)
   end
 end
 
@@ -66,10 +68,18 @@ def output_argv(parsed_argv)
       puts "\s#{input[:filename]}"
     end
   else
-    sorted_options = sort_values_by_options(parsed_argv)
-    output_option_values(inputs, sorted_options)
+    output_options_available(inputs, parsed_argv)
   end
   sum_values(inputs, sorted_options) if inputs.count >= 2
+end
+
+def output_options_available(inputs, parsed_argv)
+  inputs.map do |input|
+    OPTION_KEY_MAP.each do |option, key|
+      output_value(input[key]) if parsed_argv[:options].nil? || parsed_argv[:options].include?(option)
+    end
+    puts "\s#{input[:filename]}"
+  end
 end
 
 def parse_file_info(parsed_argv, *stdin)

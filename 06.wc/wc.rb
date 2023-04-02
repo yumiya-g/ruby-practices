@@ -36,6 +36,7 @@ def output_stdin(stdin, parsed_argv)
   if parsed_argv[:options].empty?
     inputs.first.delete(:filename)
     inputs.first.each_value { |input| output_value(input) }
+    print "\n"
   else
     sorted_options = sort_values_by_options(parsed_argv)
     output_option_values(inputs, sorted_options)

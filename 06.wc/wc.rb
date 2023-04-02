@@ -35,7 +35,7 @@ def output_stdin(stdin, parsed_argv)
 
   if parsed_argv[:options].empty?
     inputs.first.delete(:filename)
-    inputs.first.each_value { |input| int_to_string(input) }
+    inputs.first.each_value { |input| output_value(input) }
   else
     sorted_options = sort_values_by_options(parsed_argv)
     output_option_values(inputs, sorted_options)
@@ -59,9 +59,9 @@ def output_argv(parsed_argv)
 
   if parsed_argv[:options].empty?
     inputs.map do |input|
-      int_to_string(input[:rows])
-      int_to_string(input[:words])
-      int_to_string(input[:bytesize])
+      output_value(input[:rows])
+      output_value(input[:words])
+      output_value(input[:bytesize])
       puts "\s#{input[:filename]}"
     end
   else
@@ -119,7 +119,7 @@ end
 
 def output_sum_values(total_values, sorted_options)
   if sorted_options.nil?
-    total_values.values.map { |value| int_to_string(value) }
+    total_values.values.map { |value| output_value(value) }
   else
     sorted_options.map do |option|
       output_by_sorting_values(total_values, option)
@@ -130,13 +130,13 @@ end
 
 def output_by_sorting_values(input, option)
   case option
-  when :l then int_to_string(input[:rows])
-  when :w then int_to_string(input[:words])
-  when :c then int_to_string(input[:bytesize])
+  when :l then output_value(input[:rows])
+  when :w then output_value(input[:words])
+  when :c then output_value(input[:bytesize])
   end
 end
 
-def int_to_string(int)
+def output_value(int)
   print int.to_s.rjust(NUMBER_OF_LINES)
 end
 

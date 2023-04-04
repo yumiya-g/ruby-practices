@@ -40,7 +40,7 @@ def output_stdin(stdin, parsed_argv)
     inputs.first.each_value { |input| output_value(input) }
     print "\n"
   else
-    output_options_available(inputs, parsed_argv)
+    output_file_info(inputs, parsed_argv)
   end
 end
 
@@ -58,26 +58,15 @@ end
 
 def output_argv(parsed_argv)
   inputs = parse_file_info(parsed_argv)
-
-  if parsed_argv[:options].empty?
-    inputs.map do |input|
-      # TODO: DRYにする
-      output_value(input[:rows])
-      output_value(input[:words])
-      output_value(input[:bytesize])
-      puts "\s#{input[:filename]}"
-    end
-  else
-    output_options_available(inputs, parsed_argv)
-  end
+  output_file_info(inputs, parsed_argv)
 
   sum_values(inputs, parsed_argv) if inputs.count >= 2
 end
 
-def output_options_available(inputs, parsed_argv)
+def output_file_info(inputs, parsed_argv)
   inputs.map do |input|
     OPTION_KEY_MAP.each do |option, key|
-      output_value(input[key]) if parsed_argv[:options].include?(option)
+      output_value(input[key]) if parsed_argv[:options].empty? || parsed_argv[:options].include?(option)
     end
     puts "\s#{input[:filename]}"
   end

@@ -2,18 +2,15 @@
 # frozen_string_literal: true
 
 require 'optparse'
-require 'debug'
 
 OPTION_KEY_MAP = [%i[l rows], %i[w words], %i[c bytesize]].freeze
-
 NUMBER_OF_LINES = 8
 
 def main
   parsed_argv = argv
 
   if parsed_argv[:filenames].empty?
-    stdin = $stdin.read
-    output_stdin(stdin, parsed_argv)
+    output_stdin($stdin.read, parsed_argv)
   else
     exit_include_dirname(parsed_argv)
 

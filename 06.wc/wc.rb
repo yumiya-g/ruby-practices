@@ -12,8 +12,6 @@ def main
   if parsed_argv[:filenames].empty?
     output_stdin($stdin.read, parsed_argv)
   else
-    exit_include_dirname(parsed_argv)
-
     output_argv(parsed_argv)
   end
 end
@@ -38,18 +36,6 @@ def output_stdin(stdin, parsed_argv)
     print "\n"
   else
     output_file_info(inputs, parsed_argv)
-  end
-end
-
-def exit_include_dirname(commandline_args)
-  current_file_lists = `ls -l`.split("\n").map { |input| input.split("\s") }
-  commandline_args[:filenames].map do |arg|
-    current_file_lists.map do |list|
-      if list.first.include?('d') && arg.delete('/') == list.last
-        puts "wc: #{arg}: read: Is a directory"
-        exit
-      end
-    end
   end
 end
 

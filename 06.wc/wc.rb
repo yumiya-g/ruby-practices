@@ -3,6 +3,8 @@
 
 require 'optparse'
 
+require 'debug'
+
 OPTION_KEY_MAP = [%i[l rows], %i[w words], %i[c bytesize]].freeze
 NUMBER_OF_LINES = 8
 
@@ -48,9 +50,7 @@ end
 
 def output_file_info(inputs, parsed_argv)
   inputs.map do |input|
-    OPTION_KEY_MAP.each do |option, key|
-      output_value(input[key]) if parsed_argv[:options].empty? || parsed_argv[:options].include?(option)
-    end
+    output_value(input, parsed_argv)
     puts "\s#{input[:filename]}"
   end
 end
@@ -89,14 +89,14 @@ def sum_values(inputs, parsed_argv)
 end
 
 def output_sum_values(total_values, parsed_argv)
-  OPTION_KEY_MAP.each do |option, key|
-    output_value(total_values[key]) if parsed_argv[:options].empty? || parsed_argv[:options].include?(option)
-  end
+  output_value(total_values, parsed_argv)
   puts "\stotal"
 end
 
-def output_value(int)
-  print int.to_s.rjust(NUMBER_OF_LINES)
+def output_value(values, parsed_argv)
+  OPTION_KEY_MAP.each do |option, key|
+    print values[key].to_s.rjust(NUMBER_OF_LINES) if parsed_argv[:options].empty? || parsed_argv[:options].include?(option)
+  end
 end
 
 main

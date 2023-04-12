@@ -3,8 +3,6 @@
 
 require 'optparse'
 
-require 'debug'
-
 OPTION_KEY_MAP = [%i[l rows], %i[w words], %i[c bytesize]].freeze
 NUMBER_OF_LINES = 8
 
@@ -33,8 +31,7 @@ def output_stdin(stdin, parsed_argv)
   inputs = [parse_file_info(parsed_argv, stdin)]
 
   if parsed_argv[:options].empty?
-    inputs.first.delete(:filename)
-    inputs.first.each_value { |input| output_value(input) }
+    inputs.map { |input| output_value(input, parsed_argv) }
     print "\n"
   else
     output_file_info(inputs, parsed_argv)

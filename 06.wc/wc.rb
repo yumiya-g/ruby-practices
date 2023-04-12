@@ -61,17 +61,17 @@ def parse_file_info(parsed_argv, *stdin)
   else
     file_names = parsed_argv[:filenames]
     file_names.map do |name|
-      file_info = File.open(name).read
-      build_file_info(file_info, name)
+      file_code = File.open(name).read
+      build_file_info(file_code, name)
     end
   end
 end
 
-def build_file_info(file_info, *name)
-  formatted_inputs = file_info.split("\n").map { |s| s.split("\s") }
+def build_file_info(file_code, *name)
+  formatted_inputs = file_code.split("\n").map { |s| s.split("\s") }
   rows = formatted_inputs.count
   words = formatted_inputs.map(&:count).sum
-  bytesize = file_info.bytesize
+  bytesize = file_code.bytesize
 
   { rows: rows, words: words, bytesize: bytesize, filename: name.first }
 end

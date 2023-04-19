@@ -9,11 +9,17 @@ NUMBER_OF_LINES = 8
 def main
   parsed_argv = argv
 
-  if parsed_argv[:filenames].empty?
-    output_stdin($stdin.read, parsed_argv)
-  else
-    output_argv(parsed_argv)
-  end
+  inputs = if parsed_argv[:filenames].empty?
+             parse_file_info(parsed_argv, $stdin.read)
+           else
+             parse_file_info(parsed_argv)
+           end
+
+  couted_file_info = count_file_options(inputs)
+  total_values = sum_options_value(couted_file_info)
+
+  output_file_info(couted_file_info, parsed_argv)
+  output_total(total_values, parsed_argv) if couted_file_info.count >= 2
 end
 
 def argv
@@ -27,72 +33,54 @@ def argv
   { filenames: filenames, options: options }
 end
 
-def output_stdin(stdin, parsed_argv)
-  inputs = [parse_file_info(parsed_argv, stdin)]
-
-  if parsed_argv[:options].empty?
-    inputs.map { |input| output_value(input, parsed_argv) }
-    print "\n"
-  else
-    output_file_info(inputs, parsed_argv)
-  end
-end
-
-def output_argv(parsed_argv)
-  inputs = parse_file_info(parsed_argv)
-  output_file_info(inputs, parsed_argv)
-
-  sum_values(inputs, parsed_argv) if inputs.count >= 2
-end
-
-def output_file_info(inputs, parsed_argv)
-  inputs.map do |input|
-    output_value(input, parsed_argv)
-    puts "\s#{input[:filename]}"
-  end
-end
-
 def parse_file_info(parsed_argv, *stdin)
   if parsed_argv[:filenames].empty?
-    build_file_info(stdin.first)
+    [[stdin.first, nil]]
   else
     file_names = parsed_argv[:filenames]
     file_names.map do |name|
-      file_code = File.open(name).read
-      build_file_info(file_code, name)
+      [File.open(name).read, name]
     end
   end
 end
 
-def build_file_info(file_code, *name)
-  formatted_inputs = file_code.split("\n").map { |s| s.split("\s") }
-  rows = formatted_inputs.count
-  words = formatted_inputs.map(&:count).sum
-  bytesize = file_code.bytesize
+def count_file_options(inputs)
+  inputs.map do |input|
+    formatted_inputs = input.first.split("\n").map { |s| s.split("\s") }
+    rows = formatted_inputs.count
+    words = formatted_inputs.map(&:count).sum
+    bytesize = input.first.bytesize
+    filename = input.last
 
-  { rows: rows, words: words, bytesize: bytesize, filename: name.first }
+    { rows: rows, words: words, bytesize: bytesize, filename: filename }
+  end
 end
 
-def sum_values(inputs, parsed_argv)
-  file_values = inputs.map do |input|
-    input.except(:filename)
+def sum_options_value(couted_file_info)
+  file_values = couted_file_info.map do |info|
+    info.except(:filename)
   end
 
-  total_values = {}.merge(*file_values) do |_key, current_hash, next_hash|
+  {}.merge(*file_values) do |_key, current_hash, next_hash|
     current_hash + next_hash
   end
-
-  output_sum_values(total_values, parsed_argv)
 end
 
-def output_sum_values(total_values, parsed_argv)
-  output_value(total_values, parsed_argv)
+def output_file_info(couted_file_info, parsed_argv)
+  couted_file_info.map do |info|
+    formatted_output(info, parsed_argv)
+    puts "\s#{info[:filename]}"
+  end
+end
+
+def output_total(total_values, parsed_argv)
+  formatted_output(total_values, parsed_argv)
   puts "\stotal"
 end
 
-def output_value(values, parsed_argv)
+def formatted_output(option_value, parsed_argv)
   OPTION_KEY_MAP.each do |option, key|
-    print values[key].to_s.rjust(NUMBER_OF_LINES) if parsed_argv[:options].empty? || parsed_argv[:options].include?(option)
+    print option_value[key].to_s.rjust(NUMBER_OF_LINES) if parsed_argv[:options].empty? || parsed_argv[:options].include?(option)
   end
 end
 

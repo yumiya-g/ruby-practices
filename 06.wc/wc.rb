@@ -3,6 +3,8 @@
 
 require 'optparse'
 
+require 'debug'
+
 OPTION_KEY_MAP = [%i[l rows], %i[w words], %i[c bytesize]].freeze
 NUMBER_OF_LINES = 8
 
@@ -14,7 +16,6 @@ def main
            else
              parse_file_info(parsed_argv)
            end
-
   couted_file_info = count_file_options(inputs)
   total_values = sum_options_value(couted_file_info)
 
@@ -33,9 +34,9 @@ def argv
   { filenames: filenames, options: options }
 end
 
-def parse_file_info(parsed_argv, *stdin)
+def parse_file_info(parsed_argv, stdin = nil)
   if parsed_argv[:filenames].empty?
-    [[stdin.first, nil]]
+    [[stdin, nil]]
   else
     file_names = parsed_argv[:filenames]
     file_names.map do |name|

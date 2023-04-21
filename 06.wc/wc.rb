@@ -12,15 +12,15 @@ def main
   parsed_argv = argv
 
   inputs = if parsed_argv[:filenames].empty?
-             parse_file_info(parsed_argv, $stdin.read)
+             read_file_contents(parsed_argv, $stdin.read)
            else
-             parse_file_info(parsed_argv)
+             read_file_contents(parsed_argv)
            end
-  couted_file_info = count_file_options(inputs)
-  total_values = sum_options_value(couted_file_info)
+  counted_file_info = count_file_contents(inputs)
+  total_values = sum_options_value(counted_file_info)
 
-  output_file_info(couted_file_info, parsed_argv)
-  output_total(total_values, parsed_argv) if couted_file_info.count >= 2
+  output_file_info(counted_file_info, parsed_argv)
+  output_total(total_values, parsed_argv) if counted_file_info.count >= 2
 end
 
 def argv
@@ -34,7 +34,7 @@ def argv
   { filenames: filenames, options: options }
 end
 
-def parse_file_info(parsed_argv, stdin = nil)
+def read_file_contents(parsed_argv, stdin = nil)
   if parsed_argv[:filenames].empty?
     [[stdin, nil]]
   else
@@ -45,7 +45,7 @@ def parse_file_info(parsed_argv, stdin = nil)
   end
 end
 
-def count_file_options(inputs)
+def count_file_contents(inputs)
   inputs.map do |input|
     formatted_inputs = input.first.split("\n").map { |s| s.split("\s") }
     rows = formatted_inputs.count
@@ -57,8 +57,8 @@ def count_file_options(inputs)
   end
 end
 
-def sum_options_value(couted_file_info)
-  file_values = couted_file_info.map do |info|
+def sum_options_value(counted_file_info)
+  file_values = counted_file_info.map do |info|
     info.except(:filename)
   end
 
@@ -67,8 +67,8 @@ def sum_options_value(couted_file_info)
   end
 end
 
-def output_file_info(couted_file_info, parsed_argv)
-  couted_file_info.map do |info|
+def output_file_info(counted_file_info, parsed_argv)
+  counted_file_info.map do |info|
     formatted_output(info, parsed_argv)
     puts "\s#{info[:filename]}"
   end

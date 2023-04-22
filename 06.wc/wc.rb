@@ -3,8 +3,6 @@
 
 require 'optparse'
 
-require 'debug'
-
 OPTION_KEY_MAP = [%i[l rows], %i[w words], %i[c bytesize]].freeze
 NUMBER_OF_LINES = 8
 
@@ -46,14 +44,13 @@ def read_file_contents(parsed_argv, stdin = nil)
 end
 
 def count_file_contents(inputs)
-  inputs.map do |input|
-    formatted_inputs = input.first.split("\n").map { |s| s.split("\s") }
-    rows = formatted_inputs.count
-    words = formatted_inputs.map(&:count).sum
-    bytesize = input.first.bytesize
-    filename = input.last
+  inputs.map do |contents, filename|
+    split_contents = contents.split("\n").map { |s| s.split("\s") }
+    rows = split_contents.count
+    words = split_contents.map(&:count).sum
+    bytesize = contents.bytesize
 
-    { rows: rows, words: words, bytesize: bytesize, filename: filename }
+    { rows: rows, words: words, bytesize: bytesize, contents: contents, filename: filename }
   end
 end
 

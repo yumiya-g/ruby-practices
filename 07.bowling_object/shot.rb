@@ -10,7 +10,12 @@ class Shot
   end
 
   def score
-    return 10 if mark == 'X'
-    mark.to_i
+    if mark == 'X'
+      10
+    elsif mark == nil
+      nil
+    else
+      mark.to_i
+    end
   end
 end

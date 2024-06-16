@@ -11,11 +11,15 @@ class ShotTest < Minitest::Test
   end
 
   def test_score_one_to_nine
-    scores = [*0..9]
+    scores = [*0..9].map(&:to_s)
     scores.each do |score|
       shot = Shot.new(score)
-      assert_equal score, shot.score
+      assert_equal score.to_i, shot.score
     end
   end
 
+  def test_score_nil
+    shot = Shot.new(nil)
+    assert_equal nil, shot.score
+  end
 end

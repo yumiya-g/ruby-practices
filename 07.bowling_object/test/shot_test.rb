@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'minitest/autorun'
-require 'debug'
 require_relative '../shot'
 
 class ShotTest < Minitest::Test
@@ -20,6 +19,6 @@ class ShotTest < Minitest::Test
 
   def test_score_nil
     shot = Shot.new(nil)
-    assert_equal nil, shot.score
+    assert_nil(shot.score)
   end
 end

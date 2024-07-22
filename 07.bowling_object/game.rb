@@ -3,9 +3,6 @@
 
 require_relative 'frame'
 
-marks = ARGV[0]
-all_shots = marks.split(',').map { |s| s }
-
 class Game
   def initialize(marks)
     @all_shots = marks
@@ -20,10 +17,10 @@ class Game
   def parse_all_frames
     all_frames = []
     frame = []
-    @all_shots.each do |shot|     
+    @all_shots.each do |shot|
       frame << shot
       if all_frames.size < 10
-        if frame.size >=2 || shot == 'X'
+        if frame.size >= 2 || shot == 'X'
           all_frames << frame.dup
           frame.clear
         end
@@ -44,7 +41,7 @@ class Game
   end
 
   def sum(scores)
-    point_sum = 0 
+    point_sum = 0
     scores.size.times do |frame_number|
       frame, next_frame, after_next_frame = scores[frame_number, 3]
       next_frame ||= []
@@ -89,6 +86,3 @@ class Game
     point
   end
 end
-
-game = Game.new(all_shots)
-p game.calc_scores

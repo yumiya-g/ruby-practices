@@ -20,12 +20,12 @@ class FrameTest < Minitest::Test
   end
 
   def test_ten_frame_strike
-    frame = Frame.new('X', '0' ,'X')
+    frame = Frame.new('X', '0', 'X')
     assert_equal frame.create_scores_per_frame, [10, 0, 10]
   end
 
   def test_ten_frame_spare
-    frame = Frame.new('4', '6' ,'X')
+    frame = Frame.new('4', '6', 'X')
     assert_equal frame.create_scores_per_frame, [4, 6, 10]
   end
 end

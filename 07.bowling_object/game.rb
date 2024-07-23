@@ -58,6 +58,18 @@ class Game
     point_sum
   end
 
+  def total_score_to_point(point, frame, next_frame, after_next_frame)
+    if strike?(frame)
+      point += frame.sum + next_frame[0..1].sum
+      point += after_next_frame.first if next_strike?(next_frame)
+    elsif spare?(frame)
+      point += frame.sum + next_frame.first
+    else
+      point += frame[0..1].sum
+    end
+    point
+  end
+
   def strike?(frame)
     frame.first == 10
   end
@@ -72,17 +84,5 @@ class Game
 
   def one_to_nine_frame?(frame_number)
     frame_number < 9
-  end
-
-  def total_score_to_point(point, frame, next_frame, after_next_frame)
-    if strike?(frame)
-      point += frame.sum + next_frame[0..1].sum
-      point += after_next_frame.first if next_strike?(next_frame)
-    elsif spare?(frame)
-      point += frame.sum + next_frame.first
-    else
-      point += frame[0..1].sum
-    end
-    point
   end
 end

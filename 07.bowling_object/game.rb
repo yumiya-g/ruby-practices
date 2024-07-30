@@ -14,6 +14,8 @@ class Game
     sum(scores)
   end
 
+  private
+
   def parse_all_frames
     all_frames = []
     frame = []

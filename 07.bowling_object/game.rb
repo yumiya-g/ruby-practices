@@ -38,7 +38,7 @@ class Game
   def score_per_frames(frames)
     frames.map do |frame|
       frame = Frame.new(*frame)
-      frame.create_scores_per_frame
+      frame.create_scores
     end
   end
 

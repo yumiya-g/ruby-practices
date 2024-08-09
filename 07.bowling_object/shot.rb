@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'debug'
 
 class Shot
   def initialize(mark)

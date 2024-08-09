@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'shot'
+require 'debug'
 
 class Frame
   def initialize(first_mark, second_mark = nil, third_mark = nil)

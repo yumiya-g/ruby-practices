@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require_relative 'game'
+require 'debug'
 
 marks = ARGV[0]
 all_shots = marks.split(',').map { |s| s }

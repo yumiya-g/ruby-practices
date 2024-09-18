@@ -5,9 +5,9 @@ require 'debug'
 
 class Frame
   def initialize(first_mark, second_mark = nil, third_mark = nil)
-    @first_shot = Shot.new(first_mark).score
-    @second_shot = Shot.new(second_mark).score
-    @third_shot = Shot.new(third_mark).score
+    @first_shot = Shot.new(first_mark).mark_to_score
+    @second_shot = Shot.new(second_mark).mark_to_score
+    @third_shot = Shot.new(third_mark).mark_to_score
   end
 
   def create_scores

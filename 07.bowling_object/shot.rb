@@ -6,13 +6,7 @@ class Shot
     @mark = mark
   end
 
-  def score
-    if @mark.nil?
-      nil
-    else
-      return 10 if @mark == 'X'
-
-      @mark.to_i
-    end
+  def mark_to_score
+    @mark == 'X' ? 10 : @mark.to_i
   end
 end

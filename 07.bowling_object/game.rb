@@ -35,12 +35,10 @@ class Game
   end
 
   def score_per_frames(frames)
-    scores = []
-    frames.each do |frame|
+    frames.map do |frame|
       frame = Frame.new(*frame)
-      scores << frame.create_scores_per_frame
+      frame.create_scores
     end
-    scores
   end
 
   def sum(scores)

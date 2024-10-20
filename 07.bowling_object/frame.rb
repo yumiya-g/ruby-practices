@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative 'shot'
-require 'debug'
 
 class Frame
   attr_reader :frame_number, :first_shot, :second_shot, :third_shot

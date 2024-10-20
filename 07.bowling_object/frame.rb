@@ -4,7 +4,7 @@ require_relative 'shot'
 require 'debug'
 
 class Frame
-  attr_reader :first_shot, :second_shot, :third_shot, :frame_number
+  attr_reader :frame_number, :first_shot, :second_shot, :third_shot
 
   def initialize(frame_number, first_mark, second_mark = nil, third_mark = nil)
     @frame_number = frame_number
@@ -15,9 +15,7 @@ class Frame
 
   def calc_frames(next_frames)
     current_frame = [@first_shot, @second_shot, @third_shot]
-
-    next_frame =  [next_frames[0].first_shot, next_frames[0].second_shot, next_frames[0].third_shot] unless next_frames[0].nil?
-    after_next_frame = [next_frames[1].first_shot, next_frames[1].second_shot, next_frames[1].third_shot] unless next_frames[1].nil?
+    next_frame, after_next_frame = parse_next_frames(next_frames)
 
     point = 0
     if one_to_nine_frame?(@frame_number)
@@ -26,6 +24,14 @@ class Frame
       point += current_frame.sum
     end
     point
+  end
+
+  private
+
+  def parse_next_frames(frames)
+    frames.map do |frame|
+      [frame.first_shot, frame.second_shot, frame.third_shot]
+    end
   end
 
   def total_score_to_point(point, current_frame, next_frame, after_next_frame)

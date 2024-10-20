@@ -6,84 +6,39 @@ require 'debug'
 
 class Game
   def initialize(marks)
-    @all_shots = marks
+    # フレームごとに分割されたスコアを配列で格納
+    scores = parse_all_frames(marks)
+
+    # 1フレームごとの情報をFrameに渡す
+    @all_points = scores.map.with_index do |score, frame_number|
+      Frame.new(frame_number, *score)
+    end
   end
 
-  def calc_scores
-    all_frames = parse_all_frames
-    scores = score_per_frames(all_frames)
-    sum(scores)
+  def calc_game_point
+    total_point = @all_points.map do |point|
+      next_frames = @all_points[point.frame_number + 1, 2]
+      point.calc_frames(next_frames)
+    end
+    total_point.sum
   end
 
   private
 
-  def parse_all_frames
+  def parse_all_frames(marks)
     all_frames = []
     frame = []
-    @all_shots.each do |shot|
-      frame << shot
+    marks.each do |mark|
+      frame << mark
       if all_frames.size < 10
-        if frame.size >= 2 || shot == 'X'
+        if frame.size >= 2 || mark == 'X'
           all_frames << frame.dup
           frame.clear
         end
       else
-        all_frames.last << shot
+        all_frames.last << mark
       end
     end
     all_frames
-  end
-
-  def score_per_frames(frames)
-    frames.map do |frame|
-      frame = Frame.new(*frame)
-      frame.create_scores
-    end
-  end
-
-  def sum(scores)
-    point_sum = 0
-    scores.size.times do |frame_number|
-      frame, next_frame, after_next_frame = scores[frame_number, 3]
-      next_frame ||= []
-      after_next_frame ||= []
-
-      point = 0
-      if one_to_nine_frame?(frame_number)
-        point = total_score_to_point(point, frame, next_frame, after_next_frame)
-      else
-        point += frame.sum
-      end
-      point_sum += point
-    end
-    point_sum
-  end
-
-  def total_score_to_point(point, frame, next_frame, after_next_frame)
-    if strike?(frame)
-      point += frame.sum + next_frame[0..1].sum
-      point += after_next_frame.first if next_strike?(next_frame)
-    elsif spare?(frame)
-      point += frame.sum + next_frame.first
-    else
-      point += frame[0..1].sum
-    end
-    point
-  end
-
-  def strike?(frame)
-    frame.first == 10
-  end
-
-  def next_strike?(frame)
-    frame.count == 1
-  end
-
-  def spare?(frame)
-    frame[0..1].sum == 10
-  end
-
-  def one_to_nine_frame?(frame_number)
-    frame_number < 9
   end
 end

@@ -6,14 +6,14 @@ require 'debug'
 class Game
   def initialize(marks)
     scores = parse_all_frames(marks)
-    @all_frames = scores.map.with_index do |score, frame_number|
+    @frames = scores.map.with_index do |score, frame_number|
       Frame.new(frame_number, *score)
     end
   end
 
   def calc_game_point
-    total_points = @all_frames.map do |frame|
-      next_frames = @all_frames[frame.frame_number + 1, 2]
+    total_points = @frames.map do |frame|
+      next_frames = @frames[frame.frame_number + 1, 2]
       frame.calc_frames(next_frames)
     end
     total_points.sum

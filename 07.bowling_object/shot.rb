@@ -5,7 +5,7 @@ class Shot
     @mark = mark
   end
 
-  def mark_to_score
+  def score
     @mark == 'X' ? 10 : @mark.to_i
   end
 end

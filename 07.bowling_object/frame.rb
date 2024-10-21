@@ -1,15 +1,16 @@
 # frozen_string_literal: true
 
 require_relative 'shot'
+require 'debug'
 
 class Frame
   attr_reader :frame_number, :first_shot, :second_shot, :third_shot
 
   def initialize(frame_number, first_mark, second_mark = nil, third_mark = nil)
     @frame_number = frame_number
-    @first_shot = Shot.new(first_mark).mark_to_score
-    @second_shot = Shot.new(second_mark).mark_to_score
-    @third_shot = Shot.new(third_mark).mark_to_score
+    @first_shot = Shot.new(first_mark).score
+    @second_shot = Shot.new(second_mark).score
+    @third_shot = Shot.new(third_mark).score
   end
 
   def calc_frames(next_frames)

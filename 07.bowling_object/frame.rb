@@ -18,12 +18,7 @@ class Frame
     next_frame, after_next_frame = parse_next_frames(next_frames)
 
     point = 0
-    if one_to_nine_frame?(@frame_number)
-      point = total_score_to_point(point, current_frame, next_frame, after_next_frame)
-    else
-      point += current_frame.sum
-    end
-    point
+    total_score_to_point(point, current_frame, next_frame, after_next_frame)
   end
 
   private
@@ -35,30 +30,30 @@ class Frame
   end
 
   def total_score_to_point(point, current_frame, next_frame, after_next_frame)
-    if strike?(current_frame)
-      point += current_frame.sum + next_frame[0..1].sum
-      point += after_next_frame.first if strike?(next_frame) && shot_exist?(after_next_frame)
-    elsif spare?(current_frame)
-      point += current_frame.sum + next_frame.first
+    if one_to_nine_frame?
+      if strike?
+        point += current_frame.sum + next_frame[0..1].sum
+        point += after_next_frame.first if next_frame[0] == 10 && after_next_frame != nil
+      elsif spare?
+        point += current_frame.sum + next_frame.first
+      else
+        point += current_frame[0..1].sum
+      end
     else
-      point += current_frame[0..1].sum
+       point += current_frame.sum
     end
     point
   end
 
-  def strike?(frame)
-    frame.first == 10
+  def strike?
+    self.first_shot == 10
   end
 
-  def spare?(frame)
-    frame[0..1].sum == 10
+  def spare?
+    self.first_shot + self.second_shot == 10
   end
 
-  def one_to_nine_frame?(frame_number)
-    frame_number < 9
-  end
-
-  def shot_exist?(shot)
-    !shot.nil?
+  def one_to_nine_frame?
+    self.frame_number < 9
   end
 end

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative 'frame'
-require 'debug'
 
 class Game
   def initialize(marks)
@@ -14,7 +13,7 @@ class Game
   def calc_game_point
     total_points = @frames.map do |frame|
       next_frames = @frames[frame.frame_number + 1, 2]
-      frame.calc_frames(next_frames)
+      frame.calc_frames(*next_frames)
     end
     total_points.sum
   end

@@ -1,59 +1,46 @@
 # frozen_string_literal: true
 
 require_relative 'shot'
-require 'debug'
 
 class Frame
   attr_reader :frame_number, :first_shot, :second_shot, :third_shot
 
   def initialize(frame_number, first_mark, second_mark = nil, third_mark = nil)
     @frame_number = frame_number
-    @first_shot = Shot.new(first_mark).score
-    @second_shot = Shot.new(second_mark).score
-    @third_shot = Shot.new(third_mark).score
+    @first_shot = Shot.new(first_mark)
+    @second_shot = Shot.new(second_mark)
+    @third_shot = Shot.new(third_mark)
   end
 
-  def calc_frames(next_frames)
-    current_frame = [@first_shot, @second_shot, @third_shot]
-    next_frame, after_next_frame = parse_next_frames(next_frames)
-
+  def calc_frames(next_frame = nil, after_next_frame = nil)
     point = 0
-    total_score_to_point(point, current_frame, next_frame, after_next_frame)
-  end
-
-  private
-
-  def parse_next_frames(frames)
-    frames.map do |frame|
-      [frame.first_shot, frame.second_shot, frame.third_shot]
-    end
-  end
-
-  def total_score_to_point(point, current_frame, next_frame, after_next_frame)
+    current_score = first_shot.score + second_shot.score
     if one_to_nine_frame?
       if strike?
-        point += current_frame.sum + next_frame[0..1].sum
-        point += after_next_frame.first if next_frame[0] == 10 && after_next_frame != nil
+        point += current_score + next_frame.first_shot.score + next_frame.second_shot.score
+        point += after_next_frame.first_shot.score if next_frame.first_shot.score == 10 && !after_next_frame.nil?
       elsif spare?
-        point += current_frame.sum + next_frame.first
+        point += current_score + next_frame.first_shot.score
       else
-        point += current_frame[0..1].sum
+        point += current_score
       end
     else
-       point += current_frame.sum
+      point += current_score + third_shot.score
     end
     point
   end
 
+  private
+
   def strike?
-    self.first_shot == 10
+    first_shot.score == 10
   end
 
   def spare?
-    self.first_shot + self.second_shot == 10
+    first_shot.score + second_shot.score == 10
   end
 
   def one_to_nine_frame?
-    self.frame_number < 9
+    frame_number < 9
   end
 end

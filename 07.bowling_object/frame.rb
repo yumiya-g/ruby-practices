@@ -17,7 +17,7 @@ class Frame
     if one_to_nine_frame?
       if strike?
         point += next_frame.first_shot.score + next_frame.second_shot.score
-        point += after_next_frame.first_shot.score if next_frame.first_shot.score == 10 && !after_next_frame.nil?
+        point += after_next_frame.first_shot.score if next_frame.strike? && !after_next_frame.nil?
       elsif spare?
         point += next_frame.first_shot.score
       end
@@ -27,11 +27,11 @@ class Frame
     point
   end
 
-  private
-
   def strike?
     first_shot.score == 10
   end
+
+  private
 
   def spare?
     first_shot.score + second_shot.score == 10

@@ -13,19 +13,16 @@ class Frame
   end
 
   def calc_frames(next_frame = nil, after_next_frame = nil)
-    point = 0
-    current_score = first_shot.score + second_shot.score
+    point = first_shot.score + second_shot.score
     if one_to_nine_frame?
       if strike?
-        point += current_score + next_frame.first_shot.score + next_frame.second_shot.score
+        point += next_frame.first_shot.score + next_frame.second_shot.score
         point += after_next_frame.first_shot.score if next_frame.first_shot.score == 10 && !after_next_frame.nil?
       elsif spare?
-        point += current_score + next_frame.first_shot.score
-      else
-        point += current_score
+        point += next_frame.first_shot.score
       end
     else
-      point += current_score + third_shot.score
+      point += third_shot.score
     end
     point
   end

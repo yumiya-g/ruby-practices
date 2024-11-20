@@ -37,14 +37,24 @@ module Ls
       @group = Etc.getgrgid(stats.gid).name # 所属グループ
       @size = stats.size # ファイルサイズ
       @date = generate_date_object # タイムスタンプ
-      @symlink = stats.nlink
+      @nlink = stats.nlink # ハードリンク
+      @blocks = stats.blocks # ブロック数
     end
 
     # Rowクラスに渡すデータを出力する
     def generate_stats
       # optionに"-l"含む(ファイル情報を含む)
       if options.include?(:l)
-        # debugger
+        {
+          permission: @permission,
+          name: @name,
+          date: @date,
+          owner: @owner,
+          group: @group,
+          size: @size,
+          nlink: @nlink,
+          blocks: @blocks
+        }
       else # "-l"含まない（ファイル名だけ返せばよい）
         # ":a"含む
         if options.include?(:a) # 隠しファイル表示
@@ -66,11 +76,11 @@ module Ls
 
     def generate_date_object
       {
-        year: stats.mtime.year,
-        month: stats.mtime.month,
-        day: stats.mtime.day,
-        hour: stats.mtime.hour,
-        min: stats.mtime.min
+        year: stats.mtime.year.to_s,
+        month: stats.mtime.month.to_s.rjust(2, '0'),
+        day: stats.mtime.day.to_s.rjust(2, '0'),
+        hour: stats.mtime.hour.to_s.rjust(2, '0'),
+        min: stats.mtime.min.to_s.rjust(2, '0')
       }
     end
   end

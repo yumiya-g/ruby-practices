@@ -11,7 +11,7 @@ class Ls::FileTest < Minitest::Test
   def test_generate_date_object
     file_info
     file = Ls::File.new(@file)
-    assert_equal file.date, { year: 2024, month: 11, day: 11, hour: 12, min: 38 }
+    assert_equal file.date, { year: "2024", month: "11", day: "11", hour: "12", min: "38" }
   end
 
   def test_convert_characters

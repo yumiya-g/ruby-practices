@@ -18,7 +18,11 @@ class Command
   end
 
   def display_files
-    Row.new(file_stats, options).display_file_name
+    if options.include?(:l)
+      Row.new(file_stats, options).display_stats
+    else
+      Row.new(file_stats, options).display_name
+    end
   end
 
   private

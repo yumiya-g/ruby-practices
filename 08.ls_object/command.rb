@@ -27,7 +27,7 @@ class Command
     opt.on('-l') { |v| v }
     options = opt.getopts(argv).keys.map(&:to_sym)
     directory_name = opt.parse(argv)
-    { directory_name: directory_name, options: options }
+    { directory_name:, options: }
   end
 
   def fetch_files

@@ -37,4 +37,18 @@ class CommandTest < Minitest::Test
     command = Command.new(argv)
     assert_empty command.send(:fetch_files)
   end
+
+  def test_file_stats_exist
+    argv = ['-a']
+    command = Command.new(argv).send(:fetch_files)[2]
+    assert_equal command.file_stats[:blocks], 0
+    assert_equal command.file_stats[:type], 'file'
+    assert_equal command.file_stats[:permission], '-rw-r--r--'
+    assert_equal command.file_stats[:nlink], 1
+    assert_equal command.file_stats[:owner], 'yumiya'
+    assert_equal command.file_stats[:group], 'staff'
+    assert_equal command.file_stats[:size], 0
+    assert_equal command.file_stats[:date], { year: '2022', month: '06', day: '09', hour: '23', min: '10' }
+    assert_equal command.file_stats[:name], '.gitkeep'
+  end
 end

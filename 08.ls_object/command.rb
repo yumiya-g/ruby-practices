@@ -2,7 +2,7 @@
 
 require 'optparse'
 require_relative 'file'
-require_relative 'row'
+require_relative 'file_list'
 
 class Command
   attr_reader :argv, :options, :directory_name
@@ -15,7 +15,7 @@ class Command
   end
 
   def display_files
-    Row.new(@files, options)
+    FileList.new(@files, options)
   end
 
   private
@@ -33,7 +33,7 @@ class Command
   def fetch_files
     directory_path = [directory_name.empty? ? '*' : "#{directory_name.first}/*"]
     directory_path << ::File::FNM_DOTMATCH if options.include?(:a)
-    file_names =  Dir.glob(*directory_path)
+    file_names = Dir.glob(*directory_path)
 
     file_names.map do |file_name|
       Ls::File.new(file_name)

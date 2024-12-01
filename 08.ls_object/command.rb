@@ -5,17 +5,17 @@ require_relative 'file'
 require_relative 'row'
 
 class Command
-  attr_reader :argv, :options, :directory_name, :file_stats
+  attr_reader :argv, :options, :directory_name
 
   def initialize(argv)
     @argv = argv
     @options = parse_command[:options]
     @directory_name = parse_command[:directory_name]
-    @file_stats = fetch_files
+    @files = fetch_files
   end
 
   def display_files
-    Row.new(file_stats, options)
+    Row.new(@files, options)
   end
 
   private
@@ -31,12 +31,12 @@ class Command
   end
 
   def fetch_files
-    directory = [directory_name.empty? ? '*' : "#{directory_name.first}/*"]
-    directory << ::File::FNM_DOTMATCH if options.include?(:a)
-    files =  Dir.glob(*directory)
+    directory_path = [directory_name.empty? ? '*' : "#{directory_name.first}/*"]
+    directory_path << ::File::FNM_DOTMATCH if options.include?(:a)
+    file_names =  Dir.glob(*directory_path)
 
-    files.map do |file|
-      Ls::File.new(file, options).generate_file_stats
+    file_names.map do |file_name|
+      Ls::File.new(file_name)
     end
   end
 end

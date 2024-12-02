@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'debug'
-
 class FileName
   class << self
     def display(files, columns)

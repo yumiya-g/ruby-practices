@@ -31,9 +31,9 @@ class Command
   end
 
   def fetch_files
-    directory_path = [directory_name.empty? ? '*' : "#{directory_name.first}/*"]
-    directory_path << ::File::FNM_DOTMATCH if options.include?(:a)
-    file_names = Dir.glob(*directory_path)
+    arguments = [directory_name.empty? ? '*' : "#{directory_name.first}/*"]
+    arguments << ::File::FNM_DOTMATCH if options.include?(:a)
+    file_names = Dir.glob(*arguments)
 
     file_names.map do |file_name|
       Ls::File.new(file_name)

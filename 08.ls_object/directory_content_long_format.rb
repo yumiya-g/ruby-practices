@@ -1,16 +1,21 @@
 # frozen_string_literal: true
 
 class DirectoryContentLongFormat
-  def display(files)
-    puts "total #{files.sum { |fs| fs.file_stats[:blocks] }}"
-    puts output_columns(files)
+  def initialize(files)
+    @files = files
+    display
   end
 
   private
 
-  def output_columns(files)
-    digits = generate_file_stats_digits(files)
-    files.map do |fs|
+  def display
+    puts "total #{@files.sum { |fs| fs.file_stats[:blocks] }}"
+    puts output_columns
+  end
+
+  def output_columns
+    digits = generate_file_stats_digits
+    @files.map do |fs|
       [
         fs.file_stats[:permission],
         fs.file_stats[:nlink].to_s.rjust(digits[:nlink]),
@@ -23,12 +28,12 @@ class DirectoryContentLongFormat
     end
   end
 
-  def generate_file_stats_digits(files)
+  def generate_file_stats_digits
     {
-      nlink: files.map { |f| f.file_stats[:nlink].to_s.size }.max,
-      size: files.map { |f| f.file_stats[:size].to_s.size }.max,
-      owner: files.map { |f| f.file_stats[:owner].size }.max,
-      group: files.map { |f| f.file_stats[:group].size }.max
+      nlink: @files.map { |f| f.file_stats[:nlink].to_s.size }.max,
+      size: @files.map { |f| f.file_stats[:size].to_s.size }.max,
+      owner: @files.map { |f| f.file_stats[:owner].size }.max,
+      group: @files.map { |f| f.file_stats[:group].size }.max
     }
   end
 end

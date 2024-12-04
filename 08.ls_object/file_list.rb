@@ -14,6 +14,6 @@ class FileList
   private
 
   def display_files(options)
-    options.include?(:l) ? DirectoryContentLongFormat.new.display(@files) : DirectoryContent.new.display(@files, MAX_COLUMNS)
+    options.include?(:l) ? DirectoryContentLongFormat.new(@files) : DirectoryContent.new(@files, MAX_COLUMNS)
   end
 end

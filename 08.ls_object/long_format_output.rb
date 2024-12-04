@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DirectoryContentLongFormat
+class LongFormatOutput
   def initialize(files)
     @files = files
     display

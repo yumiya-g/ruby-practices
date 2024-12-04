@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative 'directory_content'
-require_relative 'directory_content_long_format'
+require_relative 'default_output'
+require_relative 'long_format_output'
 
 MAX_COLUMNS = 3
 
@@ -14,6 +14,6 @@ class FileList
   private
 
   def display_files(options)
-    options.include?(:l) ? DirectoryContentLongFormat.new(@files) : DirectoryContent.new(@files, MAX_COLUMNS)
+    options.include?(:l) ? LongFormatOutput.new(@files) : DefaultOutput.new(@files, MAX_COLUMNS)
   end
 end

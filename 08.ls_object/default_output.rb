@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DirectoryContent
+class DefaultOutput
   def initialize(files, max_columns)
     @files = files
     @max_columns = max_columns

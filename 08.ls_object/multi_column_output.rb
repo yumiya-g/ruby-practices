@@ -4,10 +4,7 @@ class MultiColumnOutput
   def initialize(files, max_columns)
     @files = files
     @max_columns = max_columns
-    display
   end
-
-  private
 
   def display
     rows = (@files.size.to_f / @max_columns).ceil
@@ -16,6 +13,8 @@ class MultiColumnOutput
       puts name.join("\s")
     end
   end
+
+  private
 
   def adjust_name_padding
     max_number_chars = @files.map { |fs| fs.file_stats[:name].size }.max

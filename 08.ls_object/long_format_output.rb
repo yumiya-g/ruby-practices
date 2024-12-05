@@ -3,15 +3,14 @@
 class LongFormatOutput
   def initialize(files)
     @files = files
-    display
-  end
-
-  private
+  end  
 
   def display
     puts "total #{@files.sum { |fs| fs.file_stats[:blocks] }}"
     puts output_columns
   end
+
+  private
 
   def output_columns
     digits = generate_file_stats_digits

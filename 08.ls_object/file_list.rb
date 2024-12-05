@@ -14,6 +14,6 @@ class FileList
   private
 
   def display_files(options)
-    options.include?(:l) ? LongFormatOutput.new(@files) : MultiColumnOutput.new(@files, MAX_COLUMNS)
+    options.include?(:l) ? LongFormatOutput.new(@files).display : MultiColumnOutput.new(@files, MAX_COLUMNS).display
   end
 end

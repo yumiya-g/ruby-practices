@@ -19,7 +19,7 @@ class Command
 
   def display_files
     files = options.include?(:r) ? @files.reverse : @files
-    options.include?(:l) ? LongFormatOutput.new(files).display : MultiColumnOutput.new(files, MAX_COLUMNS).display
+    (options.include?(:l) ? LongFormatOutput.new(files) : MultiColumnOutput.new(files, MAX_COLUMNS)).display
   end
 
   private

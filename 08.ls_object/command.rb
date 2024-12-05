@@ -2,7 +2,10 @@
 
 require 'optparse'
 require_relative 'file'
-require_relative 'file_list'
+require_relative 'multi_column_output'
+require_relative 'long_format_output'
+
+MAX_COLUMNS = 3
 
 class Command
   attr_reader :argv, :options, :directory_name
@@ -15,7 +18,8 @@ class Command
   end
 
   def display_files
-    FileList.new(@files, options)
+    files = options.include?(:r) ? @files.reverse : @files
+    options.include?(:l) ? LongFormatOutput.new(files).display : MultiColumnOutput.new(files, MAX_COLUMNS).display
   end
 
   private

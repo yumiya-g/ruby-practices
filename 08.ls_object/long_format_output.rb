@@ -3,7 +3,7 @@
 class LongFormatOutput
   def initialize(files)
     @files = files
-  end  
+  end
 
   def display
     puts "total #{@files.sum { |fs| fs.file_stats[:blocks] }}"
